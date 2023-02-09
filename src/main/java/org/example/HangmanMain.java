@@ -10,7 +10,7 @@ import java.io.*;
 
 public class HangmanMain  {
     public static final String DICTIONARY_FILE = "/Users/rvt/IdeaProjects/evil-hangman/src/main/resources/dictionary.txt";
-    public static final boolean SHOW_COUNT = false;  // show # of choices left
+    public static final boolean SHOW_COUNT = true;  // show # of choices left
 
     public static void main(String[] args) throws FileNotFoundException {
         System.out.println("Welcome to the cse143 hangman game.");
