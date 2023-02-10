@@ -44,9 +44,11 @@ public class HangmanManager {
     public int record(char guess) {
         currentGuess = guess;
         guesses.add(guess);
-        guessesLeft--;
         generatePatterns();
 
+        if (!currentPattern.contains(Character.toString(guess))) {
+            guessesLeft--;
+        }
         return countLetters(currentPattern);
     }
 
