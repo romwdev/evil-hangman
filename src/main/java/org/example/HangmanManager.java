@@ -4,11 +4,9 @@ import java.util.*;
 
 public class HangmanManager {
 
-    private Set<String> words = new HashSet<>();
-    private final Set<Character> guesses = new HashSet<>();
-    private Map<String, Set<String>> possiblePatterns;
+    private Set<String> words;
+    private final Set<Character> guesses;
     private int guessesLeft;
-    private char currentGuess;
     private String currentPattern;
 
     public HangmanManager (Collection<String> dictionary, int length, int max) {
@@ -16,13 +14,15 @@ public class HangmanManager {
             throw new IllegalArgumentException();
         }
         guessesLeft = max;
+        words = new HashSet<>();
+        guesses = new HashSet<>();
+        currentPattern = "- ".repeat(Math.max(0, length)).trim();
 
         for (String word : dictionary) {
             if (word.length() == length) {
                 words.add(word);
             }
         }
-        currentPattern = "- ".repeat(Math.max(0, length)).trim();
     }
     public Set<String> words() {
         return words;
@@ -42,17 +42,16 @@ public class HangmanManager {
     }
 
     public int record(char guess) {
-        currentGuess = guess;
         guesses.add(guess);
         generatePatterns();
 
         if (!currentPattern.contains(Character.toString(guess))) {
             guessesLeft--;
         }
-        return countLetters(currentPattern);
+        return countLetters(currentPattern, guess);
     }
 
-    private String findLargestSet() {
+    private String findLargestSet(Map<String, Set<String>> possiblePatterns) {
         String largestPattern = "";
         int size = 0;
         for (String key : possiblePatterns.keySet()) {
@@ -66,7 +65,8 @@ public class HangmanManager {
     }
 
     private void generatePatterns() {
-        possiblePatterns = new HashMap<>();
+        Map<String, Set<String>> possiblePatterns = new HashMap<>();
+
         for (String word : words) {
             char[] letters = word.toCharArray();
             StringBuilder currentPattern = new StringBuilder();
@@ -79,25 +79,22 @@ public class HangmanManager {
                 currentPattern.append(" ");
             }
             String key = currentPattern.toString().trim();
-            if (possiblePatterns.containsKey(key)) {
-                possiblePatterns.get(key).add(word);
-            } else {
+            if (!possiblePatterns.containsKey(key)) {
                 possiblePatterns.put(key, new HashSet<>());
-                possiblePatterns.get(key).add(word);
             }
+            possiblePatterns.get(key).add(word);
         }
 
-        String largestPattern = findLargestSet();
-
-        words = new HashSet<>(possiblePatterns.get(largestPattern));
+        String largestPattern = findLargestSet(possiblePatterns);
+        words = possiblePatterns.get(largestPattern);
 
         currentPattern = largestPattern;
     }
 
-    private int countLetters(String pattern) {
+    private int countLetters(String pattern, char guess) {
         int result = 0;
         for (char letter : pattern.toCharArray()) {
-            if (letter == currentGuess) {
+            if (letter == guess) {
                 result++;
             }
         }
